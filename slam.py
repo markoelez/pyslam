@@ -16,9 +16,7 @@ class SLAM:
         self.K = K
 
     def process_frame(self, img):
-        if self.last_frame is None:
-            self.last_frame = frame
-
+        frame = Frame(img, self.K)
         img = frame.annotate(img)
 
         print(img.shape)
