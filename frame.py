@@ -1,6 +1,10 @@
+#!/Users/marko/anaconda3/envs/dl/bin/python3
 import time
 import cv2
 import numpy as np
+
+from skimage.measure import ransac
+from skimage.transform import FundamentalMatrixTransform 
 
 
 def get_features(img):
@@ -19,7 +23,31 @@ def get_matches(f1, f2):
     bf = cv2.BFMatcher(cv2.NORM_HAMMING)
     matches = bf.knnMatch(f1.des, f2.des, k=2)
 
-    return matches
+    # filter
+    ret = []
+    for m, n in matches:
+        if m.distance < 0.75*n.distance:
+            p1 = f1.kps[m.queryIdx]
+            p2 = f2.kps[m.trainIdx]
+            if m.distance < 32:
+                ret.append((p1, p2))
+   
+    assert len(ret) >= 8
+
+    ret = np.array(ret)
+    
+    src = ret[:, 0]
+    dst = ret[:, 1]
+
+    model, inliers = ransac((src, dst),
+                             FundamentalMatrixTransform,
+                             min_samples = 8,
+                             residual_threshold=1, 
+                             max_trials=100)
+
+    ret = ret[inliers]
+
+    return ret 
     
 
 class Frame:
@@ -31,23 +59,13 @@ class Frame:
             self.img = img
     
     def show(self, img, f2, matches=None):
-        for (u, v) in self.kps:
-            cv2.circle(img, (u, v), color=(0, 255, 0), radius=2)
-
-        if matches is not None:
-            for m, n in matches:
-                # simplified Lowe's ratio test
-                if m.distance < 0.75*n.distance:
-                    p1 = self.kps[m.queryIdx]
-                    p2 = f2.kps[m.trainIdx]
-
-                    if m.distance < 32:
-                        print(p1, p2)
-                        
-                        (x1, y1) = p1
-                        (x2, y2) = p2
-
-                        img = cv2.line(img, (x1, y1), (x2, y2), (255, 0, 0), thickness=1)
+        if matches is None:
+            return img
+        print('matches %d' % len(matches))
+        for p1, p2 in matches:
+            cv2.circle(img, (p1[0], p1[1]), color=(0, 255, 0), radius=2)
+            cv2.circle(img, (p2[0], p2[1]), color=(0, 255, 255), radius=1)
+            img = cv2.line(img, (p1[0], p1[1]), (p2[0], p2[1]), (255, 0, 0), thickness=1)
 
         return img
     
