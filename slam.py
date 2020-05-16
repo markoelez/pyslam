@@ -5,19 +5,34 @@ import pygame
 import numpy as np
 from pygame.locals import DOUBLEBUF
 from display import Display2D
-from frame import Frame
+from frame import Frame, get_matches
+from mapp import Map 
 
 sys.path.append('lib/')
 
 class SLAM:
     def __init__(self, W, H, K):
         self.W, self.H = W, H
+        # map
+        self.map = Map()
         # camera matrix
         self.K = K
 
     def process_frame(self, img):
         frame = Frame(img, self.K)
-        img = frame.annotate(img)
+
+        # add frame to map
+        self.map.add_frame(frame)
+
+        if len(self.map.frames) > 2:
+            f1 = self.map.frames[-1]
+            f2 = self.map.frames[-2]
+
+            matches = get_matches(f1, f2)
+
+            img = frame.show(img, f2, matches)
+        else:
+            img = frame.show(img, None, None)
 
         print(img.shape)
         return img 
@@ -33,11 +48,12 @@ if __name__ == '__main__':
     W = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))//2
     H = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))//2
 
-    # camera matrix
+    # focal length
     F = 525
-    # adjust img origin (bottom-left) to match camera origin (middle)
-    px, py = W//2, H//2
-    K = np.array([[F, 0, px], [0, F, py], [0, 0, 1]]) 
+
+    # camera matrix
+    # adjust mapping: img coords have origin at center, digital have origin bottom-left
+    K = np.array([[F, 0, W//2], [0, F, H//2], [0, 0, 1]]) 
     
     slam = SLAM(W, H, K)
     disp = Display2D(W, H)
