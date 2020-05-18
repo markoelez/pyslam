@@ -7,6 +7,7 @@ from pygame.locals import DOUBLEBUF
 from display import Display2D
 from frame import Frame, get_matches
 from mapp import Map 
+from helpers import FtoRt
 
 sys.path.append('lib/')
 
@@ -22,13 +23,14 @@ class SLAM:
         frame = Frame(img, self.K)
 
         # add frame to map
-        self.map.add_frame(frame)
-
+        self.map.add_frame(frame) 
         if len(self.map.frames) > 2:
             f1 = self.map.frames[-1]
             f2 = self.map.frames[-2]
 
-            matches = get_matches(f1, f2)
+            matches, F = get_matches(f1, f2)
+
+            R, t = FtoRt(F, self.K)
 
             img = frame.show(img, f2, matches)
         else:
@@ -49,7 +51,7 @@ if __name__ == '__main__':
     H = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))//2
 
     # focal length
-    F = 525
+    F = 1 
 
     # camera matrix
     # adjust mapping: img coords have origin at center, digital have origin bottom-left

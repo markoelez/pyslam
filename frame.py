@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 from skimage.measure import ransac
-from skimage.transform import FundamentalMatrixTransform 
+from skimage.transform import EssentialMatrixTransform, FundamentalMatrixTransform 
 
 
 def get_features(img):
@@ -45,9 +45,10 @@ def get_matches(f1, f2):
                              residual_threshold=1, 
                              max_trials=100)
 
+
     ret = ret[inliers]
 
-    return ret 
+    return ret, np.array(model.params)
     
 
 class Frame:
