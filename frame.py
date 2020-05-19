@@ -1,4 +1,5 @@
-#!/Users/marko/anaconda3/envs/dl/bin/python3
+#!/usr/bin/env python3
+
 import time
 import cv2
 import numpy as np

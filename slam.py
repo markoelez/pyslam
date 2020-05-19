@@ -1,4 +1,5 @@
-#!/Users/marko/anaconda3/envs/dl/bin/python3
+#!/usr/bin/env python3
+
 import sys
 import cv2
 import pygame
@@ -6,10 +7,20 @@ import numpy as np
 from pygame.locals import DOUBLEBUF
 from display import Display2D
 from frame import Frame, get_matches
-from mapp import Map 
 from helpers import FtoRt
 
-sys.path.append('lib/')
+sys.path.append("lib")
+import pypangolin
+
+class Map:
+    def __init__(self):
+        self.frames = []
+        self.frame_idx = 0
+
+    def add_frame(self, f):
+        self.frame_idx += 1
+        self.frames.append(f)
+        return self.frame_idx
 
 class SLAM:
     def __init__(self, W, H, K):
