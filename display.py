@@ -18,3 +18,4 @@ class Display2D:
     self.screen.blit(self.surface, (0, 0))
 
     pygame.display.flip()
+
