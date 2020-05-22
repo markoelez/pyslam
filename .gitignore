@@ -5,6 +5,7 @@
 .DS_Store
 
 build/
+dataset/
 
 ### Python ###
 # Byte-compiled / optimized / DLL files

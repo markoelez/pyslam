@@ -8,7 +8,7 @@ class Display2D:
   def __init__(self, W, H):
     pygame.init()
     self.screen = pygame.display.set_mode((W, H), DOUBLEBUF)
-    self.surface = pygame.Surface(self.screen.get_size()).convert()
+    self.surface = pygame.Surface(self.screen.get_size())
 
   def paint(self, img):
     for _  in pygame.event.get():
