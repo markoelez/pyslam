@@ -18,3 +18,7 @@ This project demonstrates a simple implementation of a monocular SLAM system usi
 for video files `chmod +x slam.py && ./slam.py <test.mp4>`
 for Kitti dataset `chmod +x pyslam.py && ./pyslam.py </path/to/kitti/sequences/00>`
 
+## License 
+All of this code is MIT licensed. Videos and libraries follow their respective licenses.
+
+
