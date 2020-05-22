@@ -10,10 +10,16 @@ from collections import defaultdict, namedtuple
 class ImageReader:
   def __init__(self, ids):
     self.ids = ids
+    self.idx = 0
 
   def read(self, path):
-    img = cv2.imread(path, -1)
+    img = cv2.imread(path)
     return img
+
+  def __getitem__(self, idx):
+    self.idx = idx
+    img = self.read(self.ids[idx])
+    return np.array(img)
 
   def __len__(self):
     return len(self.ids)
@@ -37,6 +43,9 @@ class KittiDataReader:
 
   def sort(self, xs):
     return sorted(xs, key=lambda x:float(x[:-4]))
+
+  def __getitem__(self, idx):
+    return self.left[idx]
 
   def __len__(self):
     return len(self.left)

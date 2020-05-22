@@ -8,7 +8,7 @@ import pygame
 import numpy as np
 from pygame.locals import DOUBLEBUF
 from display import Display2D
-from frame import Frame, get_matches, world_to_camera, E_to_Rt, triangulate
+from frame_old import Frame, get_matches, world_to_camera, E_to_Rt, triangulate
 
 import pypangolin as pangolin
 import OpenGL.GL as gl
