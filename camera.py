@@ -11,6 +11,8 @@ class Camera:
     self.width = width
     self.height = height
 
+    self.focal_length = fx
+
     self.intrinsic = np.array([
       [fx, 0, cx],
       [0, fy, cy], 

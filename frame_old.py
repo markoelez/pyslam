@@ -50,6 +50,7 @@ def get_matches(f1, f2):
 
   src = ret[:, 0]
   dst = ret[:, 1]
+  print(ret)
 
   model, inliers = ransac((src, dst),
       EssentialMatrixTransform,

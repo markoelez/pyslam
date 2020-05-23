@@ -3,6 +3,7 @@
 import sys
 import pygame
 from pygame.locals import DOUBLEBUF
+from multiprocessing import Process, Queue
 
 class Display2D:
   def __init__(self, W, H):
@@ -19,3 +20,13 @@ class Display2D:
 
     pygame.display.flip()
 
+
+class Display3D:
+  def __init__(self, system, config):
+    self.system = system
+    self.config = config 
+
+    # data queues
+    self.q_pose = Queue()
+    self.q_points = Queue()
+    self.q_image = Queue()
