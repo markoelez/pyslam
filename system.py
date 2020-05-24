@@ -6,7 +6,7 @@ import argparse
 
 import numpy as np
 from display import Display2D, Display3D
-from data_manager import KittiDataReader
+from loader import KittiLoader 
 from feature import Feature
 from camera import Camera 
 from frame import Frame 
@@ -70,7 +70,7 @@ if __name__ == '__main__':
     config = KittiConfig()
  
     # Kitti dataset loader
-    dataset = KittiDataReader(args.path)
+    dataset = KittiLoader(args.path)
 
     # camera object
     camera = Camera(
@@ -111,7 +111,8 @@ if __name__ == '__main__':
 
     W = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))//2
     H = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))//2
-
+    
+    # initialize config with image dimensions
     config = VideoConfig(W, H)
 
     camera = Camera(

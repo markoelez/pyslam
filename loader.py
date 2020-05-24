@@ -24,7 +24,7 @@ class ImageReader:
   def __len__(self):
     return len(self.ids)
 
-class KittiDataReader:
+class KittiLoader:
   def __init__(self, path):
     Cam = namedtuple('cam', 'fx fy cx cy width height')
     self.cam = Cam(718.856, 718.856, 607.1928, 185.2157, 1241, 376)
