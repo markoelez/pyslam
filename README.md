@@ -9,14 +9,16 @@ This project demonstrates a simple implementation of a monocular SLAM system usi
 
 ## Requirements
 - Python 3.7+
-- numpy (for matrix manipulation)
-- OpenCV (for image processing)
-- g2o (for pose estimatation)
-- pangolin (for visualization)
+- numpy
+- OpenCV
+- g2o
+- pangolin
+
+For g2o and pangolin python bindings, use the forks in my github.
 
 ## Usage
-- For video files `chmod +x slam.py && ./slam.py <test.mp4>`
-- For Kitti dataset `chmod +x pyslam.py && ./pyslam.py </path/to/kitti/sequences/00>`
+- For video files `chmod +x system.py && ./system.py --type <VIDEO> --path <test.mp4>`
+- For Kitti dataset `chmod +x system.py && ./system.py --type <KITTI> --path </path/to/kitti/dataset/sequences/00>`
 
 ## License 
 All of this code is MIT licensed. Videos and libraries follow their respective licenses.

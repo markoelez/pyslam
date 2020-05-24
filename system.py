@@ -10,7 +10,7 @@ from data_manager import KittiDataReader
 from feature import Feature
 from camera import Camera 
 from frame import Frame 
-from config import KittiConfig
+from config import KittiConfig, VideoConfig
 
 sys.path.append('lib')
 import g2o
@@ -61,46 +61,95 @@ class PYSLAM:
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
-  parser.add_argument('--path', type=str, help='path to dataset', default='~/Desktop/pyslam/dataset/sequences/00')
+  parser.add_argument('--type', type=str, help='input type: KITTI or VIDEO', default='KITTI')
+  parser.add_argument('--path', type=str, help='path to input data', default='~/Desktop/pyslam/dataset/sequences/00')
   args = parser.parse_args()
 
-  # Kitti configuration
-  config = KittiConfig()
+  if args.type == 'KITTI':
+    # Kitti configuration
+    config = KittiConfig()
  
-  # Kitti dataset loader
-  dataset = KittiDataReader(args.path)
+    # Kitti dataset loader
+    dataset = KittiDataReader(args.path)
 
-  # camera object
-  camera = Camera(
-      dataset.cam.fx,
-      dataset.cam.fy,
-      dataset.cam.cx,
-      dataset.cam.cy,
-      dataset.cam.width,
-      dataset.cam.height)
+    # camera object
+    camera = Camera(
+        dataset.cam.fx,
+        dataset.cam.fy,
+        dataset.cam.cx,
+        dataset.cam.cy,
+        dataset.cam.width,
+        dataset.cam.height)
 
-  # global SLAM object
-  slam = PYSLAM(config)
+    # global SLAM object
+    slam = PYSLAM(config)
 
-  # display 
-  #viewer = Display3D(slam, config)
-  viewer = Display2D(slam, config)
+    # display 
+    #viewer = Display3D(slam, config)
+    viewer = Display2D(slam, config)
 
-  frames = []
-  for i in range(len(dataset)):
-    img = dataset[i]
+    frames = []
+    for i in range(len(dataset)):
+      img = dataset[i]
 
-    # extract features
-    feature = Feature(img, config, camera)
-    feature.extract()
-    
-    # init frame
-    frame = Frame(i, np.eye(4), feature, camera)
+      # extract features
+      feature = Feature(img, config, camera)
+      feature.extract()
+      
+      # init frame
+      frame = Frame(i, np.eye(4), feature, camera)
 
-    if slam.is_initialized():
-      img = slam.observe(frame)
-    else:
-      slam.initialize(frame)
+      if slam.is_initialized():
+        img = slam.observe(frame)
+      else:
+        slam.initialize(frame)
 
-    viewer.update()
+      viewer.update()
+
+  if args.type == 'VIDEO':
+    cap = cv2.VideoCapture(args.path)
+
+    W = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))//2
+    H = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))//2
+
+    config = VideoConfig(W, H)
+
+    camera = Camera(
+        500,
+        500,
+        W//2,
+        H//2,
+        W//2,
+        H//2)
+
+    # global SLAM object
+    slam = PYSLAM(config)
+
+    # display 
+    viewer = Display2D(slam, config)
+
+    i = 0
+    while cap.isOpened():
+      ret, frame = cap.read()
+      frame = cv2.resize(frame, (W, H))
+
+      if ret == True:
+        # extract features
+        feature = Feature(frame, config, camera)
+        feature.extract()
+        
+        # init frame
+        frame = Frame(i, np.eye(4), feature, camera)
+
+        if slam.is_initialized():
+          frame = slam.observe(frame)
+        else:
+          slam.initialize(frame)
+
+        viewer.update()
+      else:
+        break
+
+      i += 1
+
 
