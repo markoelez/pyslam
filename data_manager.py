@@ -58,7 +58,6 @@ if __name__ == '__main__':
 
   for i in range(len(t.left)):
     path = t.left.ids[i]
-    #print('Path: %s\n' % t.left.ids[i])
     img = np.array(cv2.imread(path))
     display.paint(img)
 

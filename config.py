@@ -22,3 +22,6 @@ class KittiConfig:
     self.view_viewpoint_y = -500   # -10
     self.view_viewpoint_z = -100   # -0.1
     self.view_viewpoint_f = 2000
+
+    self.image_width = 1241
+    self.image_height= 376

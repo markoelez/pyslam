@@ -20,6 +20,45 @@ class PYSLAM:
   def __init__(self, config):
     self.config = config
 
+    self.initialized = False
+
+    self.reference = None
+    self.last = None
+    self.current = None
+
+  def initialize(self, frame):
+    print('INITIALIZING')
+    self.reference = frame 
+    self.last = frame 
+    self.current = frame 
+
+    self.initialized = True
+
+  def observe(self, frame):
+    print('OBSERVING')
+    self.current = frame
+
+    idx1s, idx2s, matches = frame.get_matches(self.reference)
+
+    frame.estimate_pose(matches)
+
+    img = frame.annotate(self.reference)
+
+    #print('Frame ID: %d - Num Matches: %d' % (self.current.idx, len(matches)))
+
+    # update last
+    self.reference = self.current
+    self.last = self.current
+
+    return img
+
+  def is_initialized(self):
+    return self.initialized
+
+  def get_current_image(self):
+    return self.current.image
+
+
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument('--path', type=str, help='path to dataset', default='~/Desktop/pyslam/dataset/sequences/00')
@@ -44,25 +83,24 @@ if __name__ == '__main__':
   slam = PYSLAM(config)
 
   # display 
-  #display = Display3D(slam, config)
-  display = Display2D(dataset.cam.width, dataset.cam.height)
+  #viewer = Display3D(slam, config)
+  viewer = Display2D(slam, config)
 
   frames = []
   for i in range(len(dataset)):
     img = dataset[i]
 
+    # extract features
     feature = Feature(img, config, camera)
     feature.extract()
-
-    frame = Frame(i, np.eye(4), feature, camera)
-    if len(frames) > 1:
-      reference_frame = frames[-1]
-      E = reference_frame.get_matches(reference_frame)
-      
-    frames.append(frame)
     
-    img = frame.feature.draw_keypoints()
+    # init frame
+    frame = Frame(i, np.eye(4), feature, camera)
 
-    #print('Frame ID: %d - Num Matches: %d' % (i, len(m)))
-    display.paint(img)
+    if slam.is_initialized():
+      img = slam.observe(frame)
+    else:
+      slam.initialize(frame)
+
+    viewer.update()
 

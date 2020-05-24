@@ -14,7 +14,14 @@ class Feature:
     self.distance = config.matching_distance 
 
   def extract(self):
-    self.keypoints = self.detector.detect(self.image)
+    #self.keypoints = self.detector.detect(self.image)
+    kps = cv2.goodFeaturesToTrack(
+        np.mean(self.image, axis=2).astype(np.uint8),
+        3000, 
+        qualityLevel=0.01, 
+        minDistance=7)
+    self.keypoints = [cv2.KeyPoint(x=p[0][0], y=p[0][1], _size=20) for p in kps]
+
     self.keypoints, self.descriptors = self.extractor.compute(self.image, self.keypoints)
     self.unmatched = np.ones(len(self.keypoints), dtype=bool)
   
@@ -45,19 +52,15 @@ class Feature:
     idx1s = np.array(idx1s)
     idx2s = np.array(idx2s)
 
-    src = ret[:, 0]
-    dst = ret[:, 1]
+    return  idx1s, idx2s, ret
 
-    E, _ = cv2.findEssentialMat(
-        src, 
-        dst, 
-        self.camera.intrinsic, 
-        method=cv2.RANSAC)
-
-    return E
-
-  def draw_keypoints(self):
-    img = cv2.drawKeypoints(self.image, self.keypoints, None, flags=0)
+  def draw_keypoints(self, color, base_image=None):
+    if base_image is None:
+      base_image = self.image
+    #img = cv2.drawKeypoints(self.image, self.keypoints, None, flags=0)
+    img = base_image[:]
+    for p in self.keypoints:
+      cv2.circle(img, (int(p.pt[0]), int(p.pt[1])), color=color, radius=2)
     return img
 
   def get_keypoints(self, idx):
