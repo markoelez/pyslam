@@ -14,7 +14,6 @@ class Feature:
     self.distance = config.matching_distance 
 
   def extract(self):
-    #self.keypoints = self.detector.detect(self.image)
     kps = cv2.goodFeaturesToTrack(
         np.mean(self.image, axis=2).astype(np.uint8),
         3000, 
@@ -23,6 +22,8 @@ class Feature:
     self.keypoints = [cv2.KeyPoint(x=p[0][0], y=p[0][1], _size=20) for p in kps]
 
     self.keypoints, self.descriptors = self.extractor.compute(self.image, self.keypoints)
+    self.keypoints = np.array(self.keypoints)
+
     self.unmatched = np.ones(len(self.keypoints), dtype=bool)
   
   def get_matches(self, keypoints, descriptors):

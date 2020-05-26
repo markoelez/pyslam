@@ -12,7 +12,7 @@ class KittiConfig:
 
     self.descriptor_matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=False)
 
-    self.matching_distance = 30
+    self.matching_distance = 15 
 
     # img params
     self.view_image_width = 400

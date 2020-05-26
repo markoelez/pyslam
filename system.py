@@ -25,9 +25,9 @@ class PYSLAM:
     self.reference = None
     self.last = None
     self.current = None
+    self.points = None
 
   def initialize(self, frame):
-    print('INITIALIZING')
     self.reference = frame 
     self.last = frame 
     self.current = frame 
@@ -35,16 +35,17 @@ class PYSLAM:
     self.initialized = True
 
   def observe(self, frame):
-    print('OBSERVING')
     self.current = frame
 
     idx1s, idx2s, matches = frame.get_matches(self.reference)
 
-    frame.estimate_pose(matches)
-
+    pose = frame.estimate_pose(self.reference)
+    
     img = frame.annotate(self.reference)
+    points3D = frame.triangulate_points(self.reference)
+    self.points = points3D
 
-    #print('Frame ID: %d - Num Matches: %d' % (self.current.idx, len(matches)))
+    print('Frame ID: {} - Num Matches: {} - Points: {}'.format(self.current.idx, len(matches), points3D[:5]))
 
     # update last
     self.reference = self.current
@@ -85,8 +86,8 @@ if __name__ == '__main__':
     slam = PYSLAM(config)
 
     # display 
-    #viewer = Display3D(slam, config)
-    viewer = Display2D(slam, config)
+    viewer = Display3D(slam, config)
+    #viewer = Display2D(slam, config)
 
     frames = []
     for i in range(len(dataset)):
@@ -104,7 +105,7 @@ if __name__ == '__main__':
       else:
         slam.initialize(frame)
 
-      viewer.update()
+      viewer.refresh()
 
   if args.type == 'VIDEO':
     cap = cv2.VideoCapture(args.path)
