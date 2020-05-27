@@ -25,7 +25,7 @@ class PYSLAM:
     self.reference = None
     self.last = None
     self.current = None
-    self.points = None
+    self.points = [] 
 
   def initialize(self, frame):
     self.reference = frame 
@@ -43,7 +43,8 @@ class PYSLAM:
     
     img = frame.annotate(self.reference)
     points3D = frame.triangulate_points(self.reference)
-    self.points = points3D
+    for pt in points3D:
+      self.points.append(pt)
 
     print('Frame ID: {} - Num Matches: {} - Points: {}'.format(self.current.idx, len(matches), points3D[:5]))
 

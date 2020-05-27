@@ -37,33 +37,29 @@ class Display3D:
     self.system = system
     self.config = config 
 
-    self.state = None # current image, points
+    self.state = None
 
     self.image_width = 300
     self.image_height = 250
 
-    self.view()
+    self.viewer_init(1024, 768)
 
-  def view(self):
-    pangolin.CreateWindowAndBind("Viewer", 1024, 768)
-    
+  def viewer_init(self, w, h):
+    pangolin.CreateWindowAndBind('Map Viewer', w, h)
     gl.glEnable(gl.GL_DEPTH_TEST)
-    gl.glEnable(gl.GL_BLEND)
-    gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
 
     self.scam = pangolin.OpenGlRenderState(
-      pangolin.ProjectionMatrix(640, 480, 420, 420, 320, 240, 0.2, 100),
-      pangolin.ModelViewLookAt(-2, 2, -2, 0, 0, 0, pangolin.AxisDirection.AxisY))
+        pangolin.ProjectionMatrix(w, h, 420, 420, w//2, h//2, 0.2, 10000),
+        pangolin.ModelViewLookAt(-80, -90, -8,
+                                 0, 0, 0,
+                                 0, -1, 0))
+    self.handler = pangolin.Handler3D(self.scam)
 
     self.dcam = pangolin.CreateDisplay()
-    self.dcam.SetBounds(
-      pangolin.Attach(0.0),
-      pangolin.Attach(1.0),
-      pangolin.Attach(0.0),
-      pangolin.Attach(1.0),
-      -640.0 / 480.0)
-
-    self.dcam.SetHandler(pangolin.Handler3D(self.scam))
+    self.dcam.SetBounds(pangolin.Attach(0.0), pangolin.Attach(1.0), pangolin.Attach(0.0), pangolin.Attach(1.0), w/h)
+    self.dcam.SetHandler(self.handler)
+    self.dcam.Resize(pangolin.Viewport(0,0,w*2,h*2))
+    self.dcam.Activate()
 
     self.dimg = pangolin.Display('image')
     self.dimg.SetBounds(
@@ -76,44 +72,37 @@ class Display3D:
     self.texture = pangolin.GlTexture(self.image_width, self.image_height, gl.GL_RGB, False, 0, gl.GL_RGB, gl.GL_UNSIGNED_BYTE)
     image = np.ones((self.image_height, self.image_width, 3), 'uint8')
 
-    self.dcam.Activate(self.scam)
-
   def refresh(self):
     # update image, points
     if self.system.points is not None:
-      self.state = [None]*2
-      self.state[0] = self.system.current.image
-      self.state[1] = self.system.points
+      self.state = [np.array(self.system.current.image), np.array(self.system.points)]
 
-    if self.state == None:
-      return
+    self.paint()
 
+  def paint(self):
     gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
     gl.glClearColor(1.0, 1.0, 1.0, 1.0)
-
-    image, points = self.state
-
-    gl.glPointSize(10)
-    gl.glColor3f(0.0, 1.0, 0.0)
     self.dcam.Activate(self.scam)
 
-    # draw points
-    gl.glPointSize(10)
-    gl.glColor3f(0.0, 1.0, 0.0)
-    pangolin.DrawPoints(points)
-    
-    # draw image
-    if image.ndim == 3:
-      image = image[::-1, :, ::-1]
-    else:
-      image = np.repeat(image[::-1, :, np.newaxis], 3, axis=2)
-    print('\n\n{}\n\n'.format(image.shape))
-    image = cv2.resize(image, (self.image_width, self.image_height))
+    if self.state is not None:
+      image, points = self.state
+      
+      if points.shape[0] != 0:
+        # draw points 
+        gl.glPointSize(2)
+        gl.glColor3f(1.0, 0.0, 0.0)
+        pangolin.DrawPoints(points)
 
-    self.texture.Upload(image, gl.GL_RGB, gl.GL_UNSIGNED_BYTE)
-    self.dimg.Activate()
-    gl.glColor3f(1.0, 1.0, 1.0)
-    self.texture.RenderToViewport()
+      # draw image
+      if image.ndim == 3:
+        image = image[::-1, :, ::-1]
+      else:
+        image = np.repeat(image[::-1, :, np.newaxis], 3, axis=2)
+      image = cv2.resize(image, (self.image_width, self.image_height))
+      self.texture.Upload(image, gl.GL_RGB, gl.GL_UNSIGNED_BYTE)
+      self.dimg.Activate()
+      gl.glColor3f(1.0, 1.0, 1.0)
+      self.texture.RenderToViewport()
 
     pangolin.FinishFrame()
 
