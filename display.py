@@ -9,6 +9,7 @@ from multiprocessing import Process, Queue
 import pypangolin as pangolin
 import OpenGL.GL as gl
 import numpy as np
+import cv2
 
 class Display2D:
   def __init__(self, system, config):
@@ -38,6 +39,9 @@ class Display3D:
 
     self.state = None # current image, points
 
+    self.image_width = 300
+    self.image_height = 250
+
     self.view()
 
   def view(self):
@@ -46,8 +50,6 @@ class Display3D:
     gl.glEnable(gl.GL_DEPTH_TEST)
     gl.glEnable(gl.GL_BLEND)
     gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
-
-    width, height = 400, 250
 
     self.scam = pangolin.OpenGlRenderState(
       pangolin.ProjectionMatrix(640, 480, 420, 420, 320, 240, 0.2, 100),
@@ -66,13 +68,13 @@ class Display3D:
     self.dimg = pangolin.Display('image')
     self.dimg.SetBounds(
         pangolin.Attach(0.0),
-        pangolin.Attach(height / 768.),
+        pangolin.Attach(self.image_height / 768.),
         pangolin.Attach(0.0),
-        pangolin.Attach(width / 1024.),
+        pangolin.Attach(self.image_width/ 1024.),
         1024 / 768.)
 
-    self.texture = pangolin.GlTexture(width, height, gl.GL_RGB, False, 0, gl.GL_RGB, gl.GL_UNSIGNED_BYTE)
-    image = np.ones((height, width, 3), 'uint8')
+    self.texture = pangolin.GlTexture(self.image_width, self.image_height, gl.GL_RGB, False, 0, gl.GL_RGB, gl.GL_UNSIGNED_BYTE)
+    image = np.ones((self.image_height, self.image_width, 3), 'uint8')
 
     self.dcam.Activate(self.scam)
 
@@ -99,8 +101,15 @@ class Display3D:
     gl.glPointSize(10)
     gl.glColor3f(0.0, 1.0, 0.0)
     pangolin.DrawPoints(points)
-
+    
     # draw image
+    if image.ndim == 3:
+      image = image[::-1, :, ::-1]
+    else:
+      image = np.repeat(image[::-1, :, np.newaxis], 3, axis=2)
+    print('\n\n{}\n\n'.format(image.shape))
+    image = cv2.resize(image, (self.image_width, self.image_height))
+
     self.texture.Upload(image, gl.GL_RGB, gl.GL_UNSIGNED_BYTE)
     self.dimg.Activate()
     gl.glColor3f(1.0, 1.0, 1.0)
