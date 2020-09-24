@@ -6,8 +6,8 @@ import pygame
 from pygame.locals import DOUBLEBUF
 
 from multiprocessing import Process, Queue
-import pypangolin as pangolin
-import OpenGL.GL as gl
+#import pypangolin as pangolin
+#import OpenGL.GL as gl
 import numpy as np
 import cv2
 
@@ -31,7 +31,7 @@ class Display2D:
 
     pygame.display.flip()
 
-
+"""
 class Display3D:
   def __init__(self, system, config):
     self.system = system
@@ -50,7 +50,7 @@ class Display3D:
 
     self.scam = pangolin.OpenGlRenderState(
         pangolin.ProjectionMatrix(w, h, 420, 420, w//2, h//2, 0.2, 10000),
-        pangolin.ModelViewLookAt(-80, -90, -8,
+        pangolin.ModelViewLookAt(-10, -300, -8,
                                  0, 0, 0,
                                  0, -1, 0))
     self.handler = pangolin.Handler3D(self.scam)
@@ -106,3 +106,4 @@ class Display3D:
 
     pangolin.FinishFrame()
 
+"""

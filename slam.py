@@ -156,7 +156,7 @@ if __name__ == '__main__':
   K = np.array([[F, 0, W//2], [0, F, H//2], [0, 0, 1]])
 
   slam = SLAM(W, H, K)
-  #disp = Display2D(W, H)
+  disp = Display2D(W, H)
 
   while cap.isOpened():
     ret, frame = cap.read()
@@ -164,6 +164,6 @@ if __name__ == '__main__':
 
     if ret == True:
       img = slam.process_frame(frame)
-      #disp.paint(img)
+      disp.paint(img)
     else:
       break

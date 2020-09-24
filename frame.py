@@ -55,7 +55,7 @@ class Frame:
     points4D = self.triangulate(self.pose, reference_frame.pose, kps1, kps2)
 
     points4D /= points4D[:, 3:]
-    points3D = points4D[:, :3] 
+    points3D = points4D#points4D[:, :3] 
 
     return points3D
 

@@ -54,7 +54,7 @@ class KittiLoader:
 if __name__ == '__main__':
   display = Display2D(1241, 376)
 
-  t = KittiDataReader('~/Desktop/pyslam/dataset/sequences/00')
+  t = KittiDataReader('dataset/sequences/00')
 
   for i in range(len(t.left)):
     path = t.left.ids[i]

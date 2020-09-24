@@ -5,7 +5,7 @@ import sys
 import argparse
 
 import numpy as np
-from display import Display2D, Display3D
+from display import Display2D
 from loader import KittiLoader 
 from feature import Feature
 from camera import Camera 
@@ -13,7 +13,6 @@ from frame import Frame
 from config import KittiConfig, VideoConfig
 
 sys.path.append('lib')
-import g2o
 
 
 class PYSLAM:
@@ -43,7 +42,12 @@ class PYSLAM:
     
     img = frame.annotate(self.reference)
     points3D = frame.triangulate_points(self.reference)
-    for pt in points3D:
+
+    good_points3D = (np.abs(points3D[:, 3]) > 0.005) & (points3D[:, 2] > 0)
+    
+    for i, pt in enumerate(points3D):
+      if not good_points3D[i]:
+        continue
       self.points.append(pt)
 
     print('Frame ID: {} - Num Matches: {} - Points: {}'.format(self.current.idx, len(matches), points3D[:5]))
@@ -64,7 +68,7 @@ class PYSLAM:
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument('--type', type=str, help='input type: KITTI or VIDEO', default='KITTI')
-  parser.add_argument('--path', type=str, help='path to input data', default='~/Desktop/pyslam/dataset/sequences/00')
+  parser.add_argument('--path', type=str, help='path to input data', default='dataset/sequences/00')
   args = parser.parse_args()
 
   if args.type == 'KITTI':
@@ -87,8 +91,7 @@ if __name__ == '__main__':
     slam = PYSLAM(config)
 
     # display 
-    viewer = Display3D(slam, config)
-    #viewer = Display2D(slam, config)
+    viewer = Display2D(slam, config)
 
     frames = []
     for i in range(len(dataset)):
@@ -106,7 +109,7 @@ if __name__ == '__main__':
       else:
         slam.initialize(frame)
 
-      viewer.refresh()
+      viewer.update()
 
   if args.type == 'VIDEO':
     cap = cv2.VideoCapture(args.path)
