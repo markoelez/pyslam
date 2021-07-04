@@ -1,3 +1,5 @@
+# DEPRECATED: see https://github.com/markoelez/minislam for an updated implementation
+
 # pyslam
 
 This project demonstrates a simple implementation of a monocular SLAM system using ORB feature detectors
