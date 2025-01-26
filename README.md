@@ -1,9 +1,9 @@
 # DEPRECATED
-see https://github.com/markoelez/minislam for updated implementation
+See https://github.com/markoelez/minislam for updated version
 
 # pyslam
 
-This project demonstrates a simple implementation of a monocular SLAM system using ORB feature detectors
+Simple implementation of monocular SLAM using ORB feature detectors
 
 ## Features
 - MP4 video loader
