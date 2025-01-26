@@ -1,4 +1,5 @@
-# DEPRECATED: see https://github.com/markoelez/minislam for an updated implementation
+# DEPRECATED
+see https://github.com/markoelez/minislam for updated implementation
 
 # pyslam
 
